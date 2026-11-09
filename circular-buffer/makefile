@@ -6,7 +6,7 @@ LIBS = -lm
 ###
 CFLAGS  = -std=c99
 CFLAGS += -g
-CFLAGS += -O0
+CFLAGS += -O
 CFLAGS += -Wall
 CFLAGS += -Wextra
 CFLAGS += -pedantic
