@@ -1,0 +1,27 @@
+---
+# Based on Jens Gustedt's "Modern C" style guidelines
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 80
+
+# Prefix notation: { at end of line
+BreakBeforeBraces: Attach
+
+# Pointer binds to the variable: char *ptr
+PointerAlignment: Right
+
+# Space after keywords, not after function names
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+
+# Ternary spacing
+SpaceBeforeCaseColon: false
+
+# Compact style
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+
+# No alignment games
+AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: false

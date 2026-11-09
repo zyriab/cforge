@@ -1,0 +1,40 @@
+---
+# clang-tidy configuration for asciistl
+# Based on Modern C principles
+
+Checks: >
+  clang-analyzer-*,
+  bugprone-*,
+  readability-*,
+  modernize-use-bool-literals,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-casting-through-void,
+  -readability-function-size,
+  -readability-function-cognitive-complexity
+
+CheckOptions:
+  # Naming conventions (Modern C style)
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.TypedefCase
+    value: lower_case
+  - key: readability-identifier-naming.StructCase
+    value: lower_case
+
+  # Line length
+  - key: readability-function-size.LineThreshold
+    value: 80
+
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+FormatStyle: file
