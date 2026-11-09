@@ -20,9 +20,6 @@
 
 #define SENTINEL_VALUE_INDEX 0
 
-static bool is_empty(const cbuf_handle_t buffer);
-static bool is_full(const cbuf_handle_t buffer);
-
 struct circular_buffer_t {
     size_t capacity;
     int oldest_element_index;
@@ -30,21 +27,21 @@ struct circular_buffer_t {
     buffer_value_t *values;
 };
 
-static bool is_empty(const cbuf_handle_t buffer) {
+static bool is_empty(struct circular_buffer_t const *const buffer) {
     return buffer->oldest_element_index == SENTINEL_VALUE_INDEX;
 }
 
-static bool is_full(const cbuf_handle_t buffer) {
+static bool is_full(struct circular_buffer_t const *const buffer) {
     return buffer->empty_element_index == buffer->oldest_element_index;
 }
 
-cbuf_handle_t new_circular_buffer(int capacity) {
+struct circular_buffer_t *new_circular_buffer(size_t capacity) {
     if (capacity <= 0) {
         fprintf(stderr, "Cannot create a buffer of capacity 0\n");
         return NULL;
     }
 
-    cbuf_handle_t buf = malloc(sizeof(circular_buffer_t));
+    struct circular_buffer_t *buf = malloc(sizeof(struct circular_buffer_t));
 
     if (buf == NULL) {
         fprintf(stderr, "Could not allocate memory for the buffer\n");
@@ -65,7 +62,7 @@ cbuf_handle_t new_circular_buffer(int capacity) {
     return buf;
 }
 
-void clear_buffer(cbuf_handle_t buffer) {
+void clear_buffer(struct circular_buffer_t *buffer) {
     if (buffer == NULL) {
         fprintf(stderr, "Buffer cannot be null\n");
         return;
@@ -75,7 +72,7 @@ void clear_buffer(cbuf_handle_t buffer) {
     buffer->empty_element_index = SENTINEL_VALUE_INDEX + 1;
 }
 
-void delete_buffer(cbuf_handle_t buffer) {
+void delete_buffer(struct circular_buffer_t *buffer) {
     if (buffer == NULL) {
         fprintf(stderr, "Buffer cannot be null\n");
         return;
@@ -89,7 +86,8 @@ void delete_buffer(cbuf_handle_t buffer) {
     buffer = NULL;
 }
 
-int16_t read(const cbuf_handle_t buffer, buffer_value_t value[static 1]) {
+int16_t read(struct circular_buffer_t *const buffer,
+             buffer_value_t value[static 1]) {
     if (is_empty(buffer)) {
         RETURN_STATUS_DATA_FAIL;
     }
@@ -111,7 +109,7 @@ int16_t read(const cbuf_handle_t buffer, buffer_value_t value[static 1]) {
     RETURN_STATUS_SUCCESS;
 }
 
-int16_t write(cbuf_handle_t buffer, buffer_value_t value) {
+int16_t write(struct circular_buffer_t *buffer, buffer_value_t value) {
     if (is_full(buffer)) {
         RETURN_STATUS_BUFFER_FAIL;
     }
@@ -131,7 +129,7 @@ int16_t write(cbuf_handle_t buffer, buffer_value_t value) {
     RETURN_STATUS_SUCCESS;
 }
 
-int16_t overwrite(cbuf_handle_t buffer, buffer_value_t value) {
+int16_t overwrite(struct circular_buffer_t *buffer, buffer_value_t value) {
     if (!is_full(buffer)) {
         return write(buffer, value);
     }
