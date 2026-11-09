@@ -14,13 +14,15 @@ void tearDown(void) {
 }
 
 static void write_values_to_buffer(size_t length, buffer_value_t values[],
-                                   bool writeover, circular_buffer_t *buffer) {
+                                   bool writeover,
+                                   struct circular_buffer_t *buffer) {
     for (size_t i = 0; i < length; ++i) {
         int16_t status = 0;
-        if (!writeover)
+        if (!writeover) {
             status = write(buffer, values[i]);
-        else
+        } else {
             status = overwrite(buffer, values[i]);
+        }
 
         char error_message[MAX_ERROR_MSG_LEN] = {0};
         snprintf(error_message, MAX_ERROR_MSG_LEN,
@@ -30,7 +32,7 @@ static void write_values_to_buffer(size_t length, buffer_value_t values[],
 }
 
 static void read_values_from_buffer(size_t length, buffer_value_t values[],
-                                    circular_buffer_t *buffer) {
+                                    struct circular_buffer_t *buffer) {
     for (size_t i = 0; i < length; ++i) {
         buffer_value_t read_value = 0;
         int16_t status = read(buffer, &read_value);
@@ -53,7 +55,7 @@ static void test_reading_empty_buffer_fails(void) {
     size_t capacity = 1;
     buffer_value_t read_value = 0;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     int16_t status = read(buffer, &read_value);
     TEST_ASSERT_EQUAL_INT16(EXIT_FAILURE, status);
     TEST_ASSERT_EQUAL_INT16(ENODATA, errno);
@@ -66,7 +68,7 @@ static void test_can_read_item_just_written(void) {
     size_t capacity = 1;
     buffer_value_t values[] = {1};
     size_t values_length = ARRAY_LENGTH(values);
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
 
     write_values_to_buffer(values_length, values, false, buffer);
     read_values_from_buffer(values_length, values, buffer);
@@ -81,7 +83,7 @@ static void test_each_item_may_only_be_read_once(void) {
     size_t values_length = ARRAY_LENGTH(values);
     buffer_value_t read_value = 0;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(values_length, values, false, buffer);
     read_values_from_buffer(values_length, values, buffer);
 
@@ -98,7 +100,7 @@ static void test_items_are_read_in_order_written(void) {
     buffer_value_t values[] = {1, 2};
     size_t values_length = ARRAY_LENGTH(values);
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(values_length, values, false, buffer);
     read_values_from_buffer(values_length, values, buffer);
 
@@ -109,7 +111,7 @@ static void test_full_buffer_cannot_be_written_to(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 1;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(1, (buffer_value_t[]){1}, false, buffer);
 
     int16_t status = write(buffer, 2);
@@ -123,7 +125,7 @@ static void test_read_frees_capacity_for_another_write(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 1;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(1, (buffer_value_t[]){1}, false, buffer);
     read_values_from_buffer(1, (buffer_value_t[]){1}, buffer);
     write_values_to_buffer(1, (buffer_value_t[]){2}, false, buffer);
@@ -136,7 +138,7 @@ static void test_read_position_maintained_across_multiple_writes(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 3;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(2, (buffer_value_t[]){1, 2}, false, buffer);
     read_values_from_buffer(1, (buffer_value_t[]){1}, buffer);
     write_values_to_buffer(1, (buffer_value_t[]){3}, false, buffer);
@@ -150,7 +152,7 @@ static void test_cleared_buffer_cannot_be_read(void) {
     size_t capacity = 1;
     buffer_value_t read_value = 0;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(1, (buffer_value_t[]){1}, false, buffer);
     clear_buffer(buffer);
     int16_t status = read(buffer, &read_value);
@@ -164,7 +166,7 @@ static void test_clear_frees_capacity_for_another_write(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 1;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(1, (buffer_value_t[]){1}, false, buffer);
     clear_buffer(buffer);
     write_values_to_buffer(1, (buffer_value_t[]){2}, false, buffer);
@@ -179,7 +181,7 @@ static void test_clear_does_nothing_on_an_empty_buffer(void) {
     buffer_value_t values[] = {1};
     size_t values_length = ARRAY_LENGTH(values);
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     clear_buffer(buffer);
     write_values_to_buffer(values_length, values, false, buffer);
 
@@ -190,7 +192,7 @@ static void test_overwrite_acts_like_write_on_non_full_buffer(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 2;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(1, (buffer_value_t[]){1}, false, buffer);
     write_values_to_buffer(1, (buffer_value_t[]){2}, true, buffer);
     read_values_from_buffer(2, (buffer_value_t[]){1, 2}, buffer);
@@ -202,7 +204,7 @@ static void test_overwrite_replaces_oldest_item_on_full_buffer(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 2;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(2, (buffer_value_t[]){1, 2}, false, buffer);
     write_values_to_buffer(1, (buffer_value_t[]){3}, true, buffer);
     read_values_from_buffer(2, (buffer_value_t[]){2, 3}, buffer);
@@ -214,7 +216,7 @@ static void test_overwrite_replaces_oldest_item_remaining_following_read(void) {
     /* TEST_IGNORE(); // delete this line to run test */
     size_t capacity = 3;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     write_values_to_buffer(3, (buffer_value_t[]){1, 2, 3}, false, buffer);
     read_values_from_buffer(1, (buffer_value_t[]){1}, buffer);
     write_values_to_buffer(1, (buffer_value_t[]){4}, false, buffer);
@@ -229,7 +231,7 @@ static void test_initial_clear_does_not_affect_wrapping(void) {
     size_t capacity = 2;
     buffer_value_t read_value = 0;
 
-    circular_buffer_t *buffer = new_circular_buffer(capacity);
+    struct circular_buffer_t *buffer = new_circular_buffer(capacity);
     clear_buffer(buffer);
     write_values_to_buffer(2, (buffer_value_t[]){1, 2}, false, buffer);
     write_values_to_buffer(2, (buffer_value_t[]){3, 4}, true, buffer);
