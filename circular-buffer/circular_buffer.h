@@ -6,7 +6,6 @@
 #include <stdint.h>
 
 typedef int buffer_value_t;
-struct circular_buffer_t;
 
 struct circular_buffer_t *new_circular_buffer(size_t capacity);
 void clear_buffer(struct circular_buffer_t *buffer);
